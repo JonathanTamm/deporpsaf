@@ -1,0 +1,427 @@
+<title>UKOR Izin Lewat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Papan izin lewat UKOR — sembilan cabang olahraga, satu halaman." />
+
+<style>
+  /* ═══ Satu dunia visual: pertandingan malam di bawah lampu sorot ═══
+     Halaman ini sengaja berkomitmen pada satu tema. Semua warna dicat
+     eksplisit lewat token, jadi tampilannya tetap utuh di host terang
+     maupun gelap. */
+  :root {
+    --turf-deep: #06120c;
+    --turf: #0b1d14;
+    --chalk: #f4f7f0;
+    --chalk-dim: #7e9187;
+    --chalk-faint: rgba(244, 247, 240, 0.1);
+    --flood: #ffe9b0;
+
+    --c-fut: #4fd98a;
+    --c-bsk: #f0a64e;
+    --c-esp: #a78bfa;
+    --c-vol: #5b9cf8;
+    --c-bad: #2fd4c4;
+    --c-tmj: #ff7a6b;
+    --c-run: #9fb6c6;
+    --c-rng: #43c9f0;
+    --c-tns: #f08a5d;
+
+    --display: "Arial Narrow", "Roboto Condensed", "Liberation Sans Narrow",
+      "Helvetica Neue", system-ui, sans-serif;
+    --body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--turf-deep);
+    color: var(--chalk);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Rumput yang baru dipotong: pita mowing halus. */
+  .turf {
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      95deg,
+      rgba(255, 255, 255, 0.016) 0 64px,
+      transparent 64px 128px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Dua kolam lampu sorot dari atas panggung. */
+  .flood {
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(60vw 46vh at 12% -6%, rgba(255, 233, 176, 0.09), transparent 65%),
+      radial-gradient(62vw 50vh at 92% -10%, rgba(255, 233, 176, 0.07), transparent 62%),
+      radial-gradient(90vw 70vh at 50% 108%, rgba(79, 217, 138, 0.05), transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: breathe 11s ease-in-out infinite;
+  }
+
+  @keyframes breathe {
+    0%, 100% { opacity: 0.82; }
+    50% { opacity: 1; }
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 72px 22px 72px;
+  }
+
+  /* ─── Hero: satu wordmark di tengah, dikunci seperti emblem ─────── */
+  .hero {
+    text-align: center;
+    padding-bottom: 34px;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(4.4rem, 22vw, 8rem);
+    line-height: 0.86;
+    letter-spacing: -0.012em;
+    animation: lift 0.9s cubic-bezier(0.16, 0.84, 0.3, 1) 0.08s backwards;
+  }
+
+  /* Baris identitas diapit garis chalk — lockup lambang klub. */
+  .sub {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 16px auto 0;
+    max-width: 360px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    letter-spacing: 0.3em;
+    text-indent: 0.3em;
+    text-transform: uppercase;
+    color: var(--flood);
+    animation: lift 0.9s cubic-bezier(0.16, 0.84, 0.3, 1) 0.18s backwards;
+  }
+
+  .sub::before,
+  .sub::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--flood) 32%, transparent);
+  }
+
+  @keyframes lift {
+    from { opacity: 0; transform: translateY(26px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ─── Garis tengah lapangan sebagai pemisah ─────────────────────── */
+  .halfway {
+    position: relative;
+    height: 40px;
+    margin: 0 0 4px;
+    display: grid;
+    place-items: center;
+    animation: wipe 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) 0.3s backwards;
+  }
+
+  .halfway::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--chalk-faint);
+  }
+
+  .halfway span {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--chalk-faint);
+    border-radius: 50%;
+    background: var(--turf-deep);
+    display: grid;
+    place-items: center;
+  }
+
+  .halfway span::after {
+    content: "";
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--chalk-dim);
+  }
+
+  @keyframes wipe {
+    from { opacity: 0; transform: scaleX(0.7); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ─── Papan fixture ─────────────────────────────────────────────── */
+  .board {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--chalk-faint);
+  }
+
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    align-items: center;
+    gap: 18px;
+    padding: 19px 6px;
+    border-bottom: 1px solid var(--chalk-faint);
+    text-decoration: none;
+    color: inherit;
+    isolation: isolate;
+    animation: lift 0.7s cubic-bezier(0.16, 0.84, 0.3, 1) backwards;
+  }
+
+  .row:nth-child(1) { animation-delay: 0.38s; }
+  .row:nth-child(2) { animation-delay: 0.435s; }
+  .row:nth-child(3) { animation-delay: 0.49s; }
+  .row:nth-child(4) { animation-delay: 0.545s; }
+  .row:nth-child(5) { animation-delay: 0.6s; }
+  .row:nth-child(6) { animation-delay: 0.655s; }
+  .row:nth-child(7) { animation-delay: 0.71s; }
+  .row:nth-child(8) { animation-delay: 0.765s; }
+  .row:nth-child(9) { animation-delay: 0.82s; }
+
+  /* Cahaya cabor menyapu masuk dari kiri saat disorot. */
+  .row::before {
+    content: "";
+    position: absolute;
+    inset: -1px -14px;
+    z-index: -1;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--sport) 20%, transparent),
+      transparent 62%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  /* Garis lajur yang menyala di kaki baris. */
+  .row::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: var(--sport);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .row:hover::before,
+  .row:focus-visible::before { opacity: 1; }
+
+  .row:hover::after,
+  .row:focus-visible::after { transform: scaleX(1); }
+
+  .row:focus-visible {
+    outline: 2px solid var(--flood);
+    outline-offset: 3px;
+  }
+
+  .code {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 6px 0;
+    border: 1px solid color-mix(in srgb, var(--sport) 45%, transparent);
+    border-radius: 2px;
+    color: var(--sport);
+    transition: background-color 0.25s ease, color 0.25s ease,
+      border-color 0.25s ease;
+  }
+
+  .row:hover .code,
+  .row:focus-visible .code {
+    background: var(--sport);
+    border-color: var(--sport);
+    color: var(--turf-deep);
+  }
+
+  .label { min-width: 0; }
+
+  .name {
+    display: block;
+    font-family: var(--display);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: clamp(1.3rem, 5.4vw, 1.62rem);
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+    transition: transform 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  .row:hover .name,
+  .row:focus-visible .name { transform: translateX(5px); }
+
+  .slug {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--chalk-dim);
+    letter-spacing: -0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .go {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--chalk-dim);
+    transition: transform 0.28s cubic-bezier(0.22, 0.61, 0.36, 1),
+      color 0.25s ease;
+  }
+
+  .row:hover .go,
+  .row:focus-visible .go {
+    color: var(--sport);
+    transform: translate(4px, -4px);
+  }
+
+  @media (max-width: 430px) {
+    .page { padding: 56px 18px 56px; }
+    .row { grid-template-columns: 46px 1fr auto; gap: 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+<div class="turf" aria-hidden="true"></div>
+<div class="flood" aria-hidden="true"></div>
+
+<div class="page">
+  <header class="hero">
+    <h1>UKOR</h1>
+    <p class="sub">Izin Lewat</p>
+  </header>
+
+  <div class="halfway" aria-hidden="true"><span></span></div>
+
+  <nav class="board" aria-label="Tautan izin lewat per cabang olahraga">
+    <a class="row" style="--sport: var(--c-fut)"
+       href="https://line.me/R/ti/g/FGxkFJ4mz_" target="_blank" rel="noopener noreferrer">
+      <span class="code" aria-hidden="true">FUT</span>
+      <span class="label">
+        <span class="name">Futsal &amp; Sepakbola</span>
+        <span class="slug">line.me &middot; gabung grup</span>
+      </span>
+      <span class="go" aria-hidden="true">&#8599;</span>
+    </a>
+
+    <a class="row" style="--sport: var(--c-bsk)"
+       href="https://ristek.link/UKORBasket" target="_blank" rel="noopener noreferrer">
+      <span class="code" aria-hidden="true">BSK</span>
+      <span class="label">
+        <span class="name">Basket</span>
+        <span class="slug">ristek.link/UKORBasket</span>
+      </span>
+      <span class="go" aria-hidden="true">&#8599;</span>
+    </a>
+
+    <a class="row" style="--sport: var(--c-esp)"
+       href="https://ristek.link/UKOREsports" target="_blank" rel="noopener noreferrer">
+      <span class="code" aria-hidden="true">ESP</span>
+      <span class="label">
+        <span class="name">Esports</span>
+        <span class="slug">ristek.link/UKOREsports</span>
+      </span>
+      <span class="go" aria-hidden="true">&#8599;</span>
+    </a>
+
+    <a class="row" style="--sport: var(--c-vol)"
+       href="https://ristek.link/UKORVoli" target="_blank" rel="noopener noreferrer">
+      <span class="code" aria-hidden="true">VOL</span>
+      <span class="label">
+        <span class="name">Voli</span>
+        <span class="slug">ristek.link/UKORVoli</span>
+      </span>
+      <span class="go" aria-hidden="true">&#8599;</span>
+    </a>
+
+    <a class="row" style="--sport: var(--c-bad)"
+       href="https://ristek.link/UKORBadminton" target="_blank" rel="noopener noreferrer">
+      <span class="code" aria-hidden="true">BAD</span>
+      <span class="label">
+        <span class="name">Badminton</span>
+        <span class="slug">ristek.link/UKORBadminton</span>
+      </span>
+      <span class="go" aria-hidden="true">&#8599;</span>
+    </a>
+
+    <a class="row" style="--sport: var(--c-tmj)"
+       href="https://ristek.link/UKORTenisMeja" target="_blank" rel="noopener noreferrer">
+      <span class="code" aria-hidden="true">TMJ</span>
+      <span class="label">
+        <span class="name">Tenis Meja</span>
+        <span class="slug">ristek.link/UKORTenisMeja</span>
+      </span>
+      <span class="go" aria-hidden="true">&#8599;</span>
+    </a>
+
+    <a class="row" style="--sport: var(--c-run)"
+       href="https://ristek.link/CSRunner" target="_blank" rel="noopener noreferrer">
+      <span class="code" aria-hidden="true">RUN</span>
+      <span class="label">
+        <span class="name">CS Runner</span>
+        <span class="slug">ristek.link/CSRunner</span>
+      </span>
+      <span class="go" aria-hidden="true">&#8599;</span>
+    </a>
+
+    <a class="row" style="--sport: var(--c-rng)"
+       href="https://ristek.link/UKORRenang" target="_blank" rel="noopener noreferrer">
+      <span class="code" aria-hidden="true">RNG</span>
+      <span class="label">
+        <span class="name">Renang</span>
+        <span class="slug">ristek.link/UKORRenang</span>
+      </span>
+      <span class="go" aria-hidden="true">&#8599;</span>
+    </a>
+
+    <a class="row" style="--sport: var(--c-tns)"
+       href="https://ristek.link/UKORTenisLapangan" target="_blank" rel="noopener noreferrer">
+      <span class="code" aria-hidden="true">TNS</span>
+      <span class="label">
+        <span class="name">Tenis Lapangan</span>
+        <span class="slug">ristek.link/UKORTenisLapangan</span>
+      </span>
+      <span class="go" aria-hidden="true">&#8599;</span>
+    </a>
+  </nav>
+</div>
